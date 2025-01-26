@@ -57,13 +57,23 @@ def main (args):
             lin = p + lin
             ref = lin[-1]
         elif "ORL" == devs[0]:
+# p = [[a], [b], [c]], lin = [[d], [e], [f]]
+# -> lin = [[a, d], [b], [e], [c, f]]
             p = stak[-1]
             stak = stak[:-1]
-            for l0 in lin[0]:
-                l0["in"] = p[0][0]["in"] 
-            lin[-1].extend(p[-1])
-            lin = p[:-1] + lin
-            ref = lin[-1]
+#            for l0 in lin[0]:
+#                l0["in"] = p[0][0]["in"] 
+#            lin[-1].extend(p[-1])
+#            objs = lin[0]
+#            lin = p[:-1] + lin[1:]
+#            lin[0].extend(objs)
+
+            nlin = [p[0] + lin[0]]
+            nlin.extend(p[1:-1])
+            nlin.extend(lin[1:-1])
+            nlin.append(p[-1] + lin[-1])
+            ref = nlin[-1]
+            lin = nlin
         elif "MPS" == devs[0]:
             stak.append([ref])
         elif "MPP" == devs[0]:
