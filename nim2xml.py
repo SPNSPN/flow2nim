@@ -74,6 +74,33 @@ def main (args):
             nlin.append(p[-1] + lin[-1])
             ref = nlin[-1]
             lin = nlin
+        elif "MOV" == devs[0]:
+# lin = [[a], [b], [c]]
+# nlin = [[a], [b], [c], [DataSource id=c], [DataSink id=c+1], [FbdObject MOV id=c+2]]
+            srcid = cnt
+            sinkid = cnt + 1
+            src = {"type": "DataSource", "device": devs[1], "id": srcid, "in": [1]}
+            sink = {"type": "DataSink", "device": devs[2], "id": sinkid, "in": []}
+
+            fbdid = cnt + 2
+            fbdin = [e["id"] for e in ref]
+            fbd = {"type": "FbdObject", "device": "MOV",
+                "id": fbdid, "in": fbdin,
+                "inputs": [["EN", fbdin], ["In1", [srcid]]], "outputs": [["ENO", fbdid], ["Out1", sinkid]]}
+
+            lin += [[src], [sink], [fbd]]
+            ref = lin[-1]
+            cnt += 3
+
+            if len(stak) == 1:
+                for l0 in lin[0]:
+                    l0["in"] = [stak[-1][-1][0]["id"]]
+                rungs.append(stak[-1] + lin + [[{"type": "right", "device": "", "id": cnt, "in": [e["id"] for e in lin[-1]]}]])
+                stak = []
+                lin = []
+                cnt = 0
+                ref = []
+
         elif "MPS" == devs[0]:
             stak.append([ref])
         elif "MPP" == devs[0]:
@@ -85,6 +112,7 @@ def main (args):
             lin.append([obj])
             ref = lin[-2]
             cnt += 1
+
             if len(stak) == 1:
                 for l0 in lin[0]:
                     l0["in"] = [stak[-1][-1][0]["id"]]

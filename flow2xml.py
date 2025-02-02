@@ -72,7 +72,7 @@ def parse_cond (token):
     if "list" == token["type"]:
         for e in token["list"]:
             if "atom" == e["type"]: # [TODO]: compare operator(<,>,=), numerical operator(+,-,*,/)
-                if e["token"] in ["AND", "And", "and", "OR", "Or", "or", ","]:
+                if e["token"] in ["AND", "And", "and", "OR", "Or", "or", ",", "TMR", "Tmr", "tmr", "TON", "Ton", "ton"]:
                     if len(stak) < 1:
                         raise RuntimeError("[ERROR]: parser got \"{0}\": requires 1/more token but stak is empty.".format(e["token"]))
                     last = stak[-1]
@@ -133,7 +133,7 @@ def parse_cond (token):
     return stak[-1]
 
 
-def gen_circuit (expr):
+def gen_circuit (expr, tmrlist = []):
     ans = []
     if "atom" == expr["type"]:
         if expr.get("reverse"):
@@ -143,23 +143,41 @@ def gen_circuit (expr):
     elif "ope2" == expr["type"]:
         if "," == expr["token"]:
             #ans.extend(gen_circuit(expr["arg1"]))
-            ans.extend(gen_circuit(expr["arg2"]))
+            rans, tmrlist = gen_circuit(expr["arg2"], tmrlist)
+            ans.extend(rans)
         elif expr["token"] in ["AND", "And", "and"]:
-            ans.extend(gen_circuit(expr["arg1"]))
-            ans.extend(gen_circuit(expr["arg2"]))
+            ans1, tmrlist = gen_circuit(expr["arg1"], tmrlist)
+            ans2, tmrlist = gen_circuit(expr["arg2"], tmrlist)
+            ans.extend(ans1)
+            ans.extend(ans2)
             ans.append(["ANDB"])
         elif expr["token"] in ["OR", "Or", "or"]:
-            ans.extend(gen_circuit(expr["arg1"]))
-            ans.extend(gen_circuit(expr["arg2"]))
+            ans1, tmrlist = gen_circuit(expr["arg1"], tmrlist)
+            ans2, tmrlist = gen_circuit(expr["arg2"], tmrlist)
+            ans.extend(ans1)
+            ans.extend(ans2)
             ans.append(["ORB"])
+        elif expr["token"] in ["TON", "Ton", "ton", "TMR", "Tmr", "tmr"]:
+            if "atom" == expr["arg2"]["type"]:
+                tans, tmrlist = gen_circuit(expr["arg1"], tmrlist)
+
+                tmpdev = "tmp_tmr_{0}".format(len(tmrlist))
+                tans.append(["TMR", expr["arg2"]["token"], tmpdev])
+                tmrlist.append(tans)
+
+                ans.append(["LD", tmpdev])
+            else:
+                raise RuntimeError("[ERROR]: fail TON/TMR expr: {0}".format(expr))
         else:
             raise RuntimeError("[ERROR]: unknown operator: {0}".format(expr["token"]))
     elif "list" == expr["type"]:
         for e in expr["list"]:
-            ans.append(gen_circuit(e))
+            rans, tmrlist = gen_circuit(e, tmrlist)
+            ans.append(rans)
     else:
         raise RuntimeError("[ERROR]: cannot convert to circuit: {0}".format(expr))
-    return ans
+    return ans, tmrlist
+
 
 def gen_outcircuit (expr):
     ans = []
@@ -220,6 +238,7 @@ def main (args):
     # CycleとStepを抽出する
     cycle = {"no": -1, "name": ""} 
     steps = {}
+    tmrlist = []
     for c in id_to_mxCell["1"]["children"].values():
         val = c["value"]
         if not val:
@@ -250,10 +269,10 @@ def main (args):
                     nim.append(["ANDI", "Cycle{0}Step{1}Done".format(cycle["no"], step["no"])])
                     nim.extend(gen_outcircuit(expr))
                 elif condname in ["起動条件"]:
-                    nim = gen_circuit(expr)
+                    nim, tmrlist = gen_circuit(expr, tmrlist)
                     nim.append(["OUT", "Cycle{0}Step{1}Start".format(cycle["no"], step["no"])])
                 elif condname in ["完了条件"]:
-                    nim = gen_circuit(expr)
+                    nim, tmrlist = gen_circuit(expr, tmrlist)
                     nim.append(["OUT", "Cycle{0}Step{1}Done".format(cycle["no"], step["no"])])
                 step[condname] = expr
                 step["nim_{0}".format(condname)] = nim
@@ -263,6 +282,7 @@ def main (args):
     print("cycle: {0}".format(cycle))
     #[print("step: {0}".format(step)) for step in sorted(steps.values(), key = lambda x: x["no"])]
     [print("step[{0}]: \n起動回路:\n{1}\n指令:\n{2}\n完了回路:\n{3}\n".format(step["no"], step["nim_起動条件"], step["nim_指令"], step["nim_完了条件"])) for step in sorted(steps.values(), key = lambda x: x["no"])]
+    [print("tmr: {0}".format(tmr)) for tmr in tmrlist]
 
 
 if __name__ == "__main__":
