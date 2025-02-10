@@ -205,10 +205,27 @@ def gen_circuit (expr, tmrlist = []):
 
 ##
 #@brief 構文木を出力回路を表現するニモニックに変換する
+#@image html "gen_outcircuit.png"
 #
 #@param expr 構文木
 #
 #@return ニモニック列
+#@startuml gen_outcircuit.png
+#start
+#if (expr.type) then (atom)
+#	:OUT expr.token;
+#elseif (expr.type) then (ope2)
+#	:PUSH;
+#	:gen_outcircuit(expr.arg1);
+#	:POP;
+#	:gen_outcircuit(expr.arg2);
+#elseif (expr.type) then (list)
+#	while (expr.list) is (次の要素)
+#		:gen_outcircuit(e);
+#	endwhile (リスト終端)
+#endif
+#stop
+#@enduml
 #
 def gen_outcircuit (expr):
     ans = []

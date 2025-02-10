@@ -57,12 +57,14 @@ def \mbox{\hyperlink{namespaceflow2xml_ae7681f48e2a027cec45897bfcd4a2c47}{main}}
 構文木を出力回路を表現するニモニックに変換する 
 
 
+
+
 \begin{DoxyParams}{引数}
 {\em expr} & 構文木\\
 \hline
 \end{DoxyParams}
 \begin{DoxyReturn}{戻り値}
-ニモニック列 
+ニモニック列  
 \end{DoxyReturn}
 
 
