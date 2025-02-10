@@ -1,0 +1,10 @@
+digraph "flow2xml.gen_circuit"
+{
+ // LATEX_PDF_SIZE
+  edge [fontname="Helvetica",fontsize="10",labelfontname="Helvetica",labelfontsize="10"];
+  node [fontname="Helvetica",fontsize="10",shape=record];
+  rankdir="RL";
+  Node1 [label="flow2xml.gen_circuit",height=0.2,width=0.4,color="black", fillcolor="grey75", style="filled", fontcolor="black",tooltip="構文木を条件回路を表現するニモニックに変換する"];
+  Node1 -> Node2 [dir="back",color="midnightblue",fontsize="10",style="solid"];
+  Node2 [label="flow2xml.main",height=0.2,width=0.4,color="black", fillcolor="white", style="filled",URL="$namespaceflow2xml.html#ae7681f48e2a027cec45897bfcd4a2c47",tooltip="メイン関数"];
+}

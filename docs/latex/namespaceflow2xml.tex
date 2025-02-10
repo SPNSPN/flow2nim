@@ -1,0 +1,47 @@
+\hypertarget{namespaceflow2xml}{}\doxysection{flow2xml 名前空間}
+\label{namespaceflow2xml}\index{flow2xml@{flow2xml}}
+\doxysubsection*{関数}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{namespaceflow2xml_a0fca6cbc091605d7d8804258551127d0}{print\+\_\+mx\+Cell}} (mx\+Cell, indent=0)
+\begin{DoxyCompactList}\small\item\em mx\+Cell内容を格納した辞書objectを文字列に変換する \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceflow2xml_a5bed39e8670c2d4dc855c978a8ad17bf}{tokenize\+\_\+cond}} (strn)
+\begin{DoxyCompactList}\small\item\em 文字列をトークン列に分割する \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceflow2xml_a8fda97e0e44085e682d25529375edb91}{parse\+\_\+cond}} (token)
+\begin{DoxyCompactList}\small\item\em トークン列を構文木として解釈する \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceflow2xml_a04e5ee030223f7281379d0184870fef4}{gen\+\_\+circuit}} (expr, tmrlist=\mbox{[}$\,$\mbox{]})
+\begin{DoxyCompactList}\small\item\em 構文木を条件回路を表現するニモニックに変換する \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceflow2xml_a35911c5e4cd909f704384500f3b5a2eb}{gen\+\_\+outcircuit}} (expr)
+\begin{DoxyCompactList}\small\item\em 構文木を出力回路を表現するニモニックに変換する \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceflow2xml_aa81bf827455a4dd57b657cc32394fbce}{parse\+\_\+cmd\+\_\+args}} ()
+\begin{DoxyCompactList}\small\item\em コマンドライン引数を解釈する \end{DoxyCompactList}\item 
+def \mbox{\hyperlink{namespaceflow2xml_ae7681f48e2a027cec45897bfcd4a2c47}{main}} (args)
+\begin{DoxyCompactList}\small\item\em メイン関数 \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{関数詳解}
+\mbox{\Hypertarget{namespaceflow2xml_a04e5ee030223f7281379d0184870fef4}\label{namespaceflow2xml_a04e5ee030223f7281379d0184870fef4}} 
+\index{flow2xml@{flow2xml}!gen\_circuit@{gen\_circuit}}
+\index{gen\_circuit@{gen\_circuit}!flow2xml@{flow2xml}}
+\doxysubsubsection{\texorpdfstring{gen\_circuit()}{gen\_circuit()}}
+{\footnotesize\ttfamily def flow2xml.\+gen\+\_\+circuit (\begin{DoxyParamCaption}\item[{}]{expr,  }\item[{}]{tmrlist = {\ttfamily \mbox{[}\mbox{]}} }\end{DoxyParamCaption})}
+
+
+
+構文木を条件回路を表現するニモニックに変換する 
+
+
+\begin{DoxyParams}{引数}
+{\em expr} & 構文木 \\
+\hline
+{\em tmrlist} & タイマー変数の一覧\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{戻り値}
+ニモニック列, タイマー変数一覧 
+\end{DoxyReturn}
+
+
+参照元 main().
+
+被呼び出し関係図\+:
