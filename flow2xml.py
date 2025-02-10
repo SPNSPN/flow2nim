@@ -223,8 +223,10 @@ def gen_circuit (expr, tmrlist = []):
 #	while (expr.list) is (次の要素)
 #		:gen_outcircuit(e);
 #	endwhile (リスト終端)
+#else
+#	stop
 #endif
-#stop
+#end
 #@enduml
 #
 def gen_outcircuit (expr):
