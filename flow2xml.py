@@ -1,10 +1,17 @@
-#! -*- coding: cp932 -*-
+#! -*- coding: utf-8 -*-
 
 import re
 import argparse
 import xml.etree.ElementTree as ET
 
-def print_mxCell (mxCell, indent):
+##
+#@brief mxCell内容を格納した辞書objectを文字列に変換する
+#
+#@param mxCell dict型
+#@param indent 表示の階層
+#@return 文字列
+#
+def print_mxCell (mxCell, indent = 0):
     cell_id = mxCell.get('id')
     cell_value = mxCell.get('value')
     ctxts = map(lambda v: print_mxCell(v, indent + 1), mxCell['children'].values())
@@ -13,6 +20,12 @@ def print_mxCell (mxCell, indent):
     ans += "{0}{1}\n{2}".format("  " * indent, cell_value, "\n".join(ctxts))
     return ans
 
+##
+#@brief 文字列をトークン列に分割する
+#
+#@param strn 変換する文字列
+#@return {"type": "list", "list": <変換されたトークン列>}
+#
 def tokenize_cond (strn):
     #print("[DEBUG]: tokenize: {0}".format(strn))
     tokens = []
@@ -65,7 +78,11 @@ def tokenize_cond (strn):
         tokens.append({"type": "atom", "token": tok})
     return {"type": "list", "list": tokens}
 
-
+##
+#@brief トークン列を構文木として解釈する
+#
+#@param token 変換するトークン列
+#
 def parse_cond (token):
     #print("[DEBUG]: parse: {0}".format(token))
     stak = []
@@ -132,7 +149,14 @@ def parse_cond (token):
         print("[WARN]: too much tokens: {0}".format(stak))
     return stak[-1]
 
-
+##
+#@brief 構文木を条件回路を表現するニモニックに変換する
+#
+#@param expr 構文木
+#@param tmrlist タイマー変数の一覧
+#
+#@return ニモニック列, タイマー変数一覧
+#
 def gen_circuit (expr, tmrlist = []):
     ans = []
     if "atom" == expr["type"]:
@@ -179,6 +203,13 @@ def gen_circuit (expr, tmrlist = []):
     return ans, tmrlist
 
 
+##
+#@brief 構文木を出力回路を表現するニモニックに変換する
+#
+#@param expr 構文木
+#
+#@return ニモニック列
+#
 def gen_outcircuit (expr):
     ans = []
     if "atom" == expr["type"]:
@@ -198,19 +229,25 @@ def gen_outcircuit (expr):
         raise RuntimeError("[ERROR]: cannot type to outcircuit: {0}".format(expr))
     return ans
 
+##
+#@brief コマンドライン引数を解釈する
+#
 def parse_cmd_args ():
     parser = argparse.ArgumentParser()
     parser.add_argument("path", help = "path to drawio file")
     return parser.parse_args()
 
+##
+#@brief メイン関数
+#
 def main (args):
-    # XML�f�[�^�̃p�[�X
+    # XMLf[^Ìp[X
     root = ET.parse(args.path).getroot()
 
-    # �S�Ă�mxCell��T��
+    # SÄÌmxCellðT·
     mxCells = root.findall('.//mxCell')
 
-    # id��value�𒊏o���A�����ɉ�����parent������
+    # idÆvalueðoµAðÉ¶Äparentàõ
     id_to_mxCell = {}
     for cell in mxCells:
         cell_id = cell.get("id")
@@ -227,15 +264,15 @@ def main (args):
         cell_value = cell.get('value', '')
         parent_id = cell.get('parent')
 
-        # "parent"�v�f��T��
+        # "parent"vfðT·
         if parent_id:
             id_to_mxCell[parent_id]['children'][cell_id] = id_to_mxCell[cell_id]
 
 
-    # �o��
+    # oÍ
     #print("tree: {0}".format(print_mxCell(id_to_mxCell["0"], 0)))
 
-    # Cycle��Step�𒊏o����
+    # CycleÆStepðo·é
     cycle = {"no": -1, "name": ""} 
     steps = {}
     tmrlist = []
@@ -264,14 +301,14 @@ def main (args):
                 condname = ccc[0]["value"]
                 expr = parse_cond(tokens)
                 nim = []
-                if condname in ["�w��"]:
+                if condname in ["wß"]:
                     nim.append(["LD", "Cycle{0}Step{1}Start".format(cycle["no"], step["no"])])
                     nim.append(["ANDI", "Cycle{0}Step{1}Done".format(cycle["no"], step["no"])])
                     nim.extend(gen_outcircuit(expr))
-                elif condname in ["�N������"]:
+                elif condname in ["N®ð"]:
                     nim, tmrlist = gen_circuit(expr, tmrlist)
                     nim.append(["OUT", "Cycle{0}Step{1}Start".format(cycle["no"], step["no"])])
-                elif condname in ["��������"]:
+                elif condname in ["®¹ð"]:
                     nim, tmrlist = gen_circuit(expr, tmrlist)
                     nim.append(["OUT", "Cycle{0}Step{1}Done".format(cycle["no"], step["no"])])
                 step[condname] = expr
@@ -281,7 +318,7 @@ def main (args):
 
     print("cycle: {0}".format(cycle))
     #[print("step: {0}".format(step)) for step in sorted(steps.values(), key = lambda x: x["no"])]
-    [print("step[{0}]: \n�N����H:\n{1}\n�w��:\n{2}\n������H:\n{3}\n".format(step["no"], step["nim_�N������"], step["nim_�w��"], step["nim_��������"])) for step in sorted(steps.values(), key = lambda x: x["no"])]
+    [print("step[{0}]: \nN®ñH:\n{1}\nwß:\n{2}\n®¹ñH:\n{3}\n".format(step["no"], step["nim_N®ð"], step["nim_wß"], step["nim_®¹ð"])) for step in sorted(steps.values(), key = lambda x: x["no"])]
     [print("tmr: {0}".format(tmr)) for tmr in tmrlist]
 
 
